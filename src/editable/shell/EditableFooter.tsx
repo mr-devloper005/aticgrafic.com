@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/site-config'
 import { globalContent } from '@/editable/content/global.content'
+import { slot4BrandConfig } from '@/editable/theme/brand.config'
 import { useEditableLocalAuthSession } from '@/editable/components/EditableLocalAuthForms'
 
 export function EditableFooter() {
@@ -15,15 +16,15 @@ export function EditableFooter() {
 
   return (
     <footer style={footerVars} className="border-t border-[var(--editable-border)] bg-[var(--editable-footer-bg)] text-[var(--editable-footer-text)]">
-      <div className="mx-auto grid max-w-[var(--editable-container)] gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_1fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-[var(--editable-container)] gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.15fr_0.85fr_0.85fr]">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-[var(--editable-border)] bg-white">
-              <img src="/favicon.png?v=20260413" alt={SITE_CONFIG.name} className="h-9 w-9 object-contain" />
+              <img src="/favicon.png?v=20260413" alt={slot4BrandConfig.siteName} className="h-9 w-9 object-contain" />
             </span>
-            <span className="text-lg font-black tracking-[-0.04em]">{SITE_CONFIG.name}</span>
+            <span className="text-lg font-black tracking-[-0.04em]">{slot4BrandConfig.siteName}</span>
           </Link>
-          <p className="mt-4 max-w-md text-sm leading-7 opacity-70">{globalContent.footer?.description || SITE_CONFIG.description}</p>
+          <p className="mt-4 max-w-md text-sm leading-7 opacity-70">{globalContent.footer?.description || slot4BrandConfig.tagline}</p>
         </div>
 
         <div>
@@ -52,7 +53,7 @@ export function EditableFooter() {
         </div>
       </div>
       <div className="border-t border-[var(--editable-border)] px-4 py-5 text-center text-xs font-bold opacity-55">
-        © {year} {SITE_CONFIG.name}. All rights reserved.
+        © {year} {slot4BrandConfig.siteName}. All rights reserved.
       </div>
     </footer>
   )
