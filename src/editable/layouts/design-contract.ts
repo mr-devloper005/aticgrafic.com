@@ -1,23 +1,24 @@
 import type { CSSProperties } from 'react'
 
 export const editableRootStyle = {
-  '--slot4-page-bg': '#fff9f2',
-  '--slot4-page-text': '#111111',
-  '--slot4-panel-bg': '#fff3e8',
+  '--editable-container': '1120px',
+  '--slot4-page-bg': '#f5f5f3',
+  '--slot4-page-text': '#0d0d0d',
+  '--slot4-panel-bg': '#ffffff',
   '--slot4-surface-bg': '#ffffff',
-  '--slot4-muted-text': '#4f463f',
-  '--slot4-soft-muted-text': '#6b6258',
-  '--slot4-accent': '#ff6600',
-  '--slot4-accent-fill': '#ff6600',
-  '--slot4-accent-soft': '#d1e0ff',
-  '--slot4-dark-bg': '#111111',
+  '--slot4-muted-text': '#4d514d',
+  '--slot4-soft-muted-text': '#71756f',
+  '--slot4-accent': '#d76f48',
+  '--slot4-accent-fill': '#0d0d0d',
+  '--slot4-accent-soft': '#eef7ed',
+  '--slot4-dark-bg': '#050505',
   '--slot4-dark-text': '#ffffff',
-  '--slot4-media-bg': '#e9e2da',
-  '--slot4-cream': '#fdf1e5',
-  '--slot4-warm': '#fff9f2',
-  '--slot4-lavender': '#d1e0ff',
-  '--slot4-gray': '#f6f6f6',
-  '--slot4-body-gradient': 'linear-gradient(180deg, #fdf1e5 0%, #fff9f2 38%, #f6f6f6 100%)',
+  '--slot4-media-bg': '#e7e4df',
+  '--slot4-cream': '#f5f5f3',
+  '--slot4-warm': '#fbfaf7',
+  '--slot4-lavender': '#eef7ed',
+  '--slot4-gray': '#eeeeeb',
+  '--slot4-body-gradient': 'linear-gradient(180deg, #fbfaf7 0%, #f5f5f3 46%, #eeeeeb 100%)',
 } as CSSProperties
 
 export const editablePalette = {
@@ -61,14 +62,14 @@ export const editableDesignContract = {
   },
   type: {
     eyebrow: 'text-xs font-extrabold uppercase tracking-[0.18em]',
-    heroTitle: 'text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.25rem]',
+    heroTitle: 'text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-[3.6rem]',
     sectionTitle: 'text-3xl font-extrabold tracking-tight sm:text-4xl',
     body: 'text-base leading-relaxed',
   },
   surface: {
-    card: `rounded-2xl border ${editablePalette.border} ${editablePalette.surfaceBg} ${editablePalette.shadow}`,
-    soft: `rounded-2xl border ${editablePalette.border} ${editablePalette.surfaceBg}`,
-    dark: `rounded-2xl ${editablePalette.darkBg} ${editablePalette.darkText} ${editablePalette.shadowStrong}`,
+    card: `rounded-[1.35rem] border ${editablePalette.border} ${editablePalette.surfaceBg} ${editablePalette.shadow}`,
+    soft: `rounded-[1.35rem] border ${editablePalette.border} ${editablePalette.surfaceBg}`,
+    dark: `rounded-[1.35rem] ${editablePalette.darkBg} ${editablePalette.darkText} ${editablePalette.shadowStrong}`,
   },
   button: {
     primary: `inline-flex items-center justify-center rounded-full ${editablePalette.darkBg} px-8 py-3.5 text-sm font-semibold text-white transition hover:opacity-90`,
