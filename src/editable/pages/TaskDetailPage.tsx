@@ -8,6 +8,7 @@ import { getTaskConfig, type TaskKey } from '@/lib/site-config'
 import type { SitePost } from '@/lib/site-connector'
 import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 import { getVisualPreset, visualSystem } from '@/editable/theme/visual-system'
+import Ads from '@/lib/ads/ads'
 
 export const revalidate = 3
 
@@ -135,30 +136,43 @@ function BackLink({ task }: { task: TaskKey }) {
 function ArticleDetail({ post, related, comments }: { post: SitePost; related: SitePost[]; comments: Array<{ id: string; name: string; comment: string; createdAt: string }> }) {
   const images = getImages(post)
   return (
-    <section className="mx-auto max-w-[var(--editable-container)] px-4 py-10 sm:px-6 lg:py-14">
-      <div className="mx-auto max-w-3xl">
+    <section className="bg-[var(--slot4-page-bg)] px-4 py-9 sm:px-6 lg:py-14">
+      <div className="mx-auto max-w-[var(--editable-container)]">
         <BackLink task="article" />
-        <div className="mt-8 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[var(--slot4-accent-soft)] px-4 py-2 text-xs font-black text-[var(--detail-text)]">{categoryOf(post, 'Article')}</span>
-          <span className="rounded-full border border-[var(--editable-border)] bg-white px-4 py-2 text-xs font-black">{readableMinutes(post)}</span>
-        </div>
-        <h1 className="mt-5 text-4xl font-black leading-[1.02] tracking-[-0.06em] sm:text-5xl lg:text-6xl">{post.title}</h1>
 
-      </div>
+        <header className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px] lg:items-end">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[var(--slot4-accent-soft)] px-4 py-2 text-xs font-black text-[var(--detail-text)]">{categoryOf(post, 'Article')}</span>
+              <span className="rounded-full border border-[var(--editable-border)] bg-white px-4 py-2 text-xs font-black">{readableMinutes(post)}</span>
+            </div>
+            <h1 className="mt-5 max-w-5xl text-4xl font-black leading-[1.02] tracking-[-0.06em] sm:text-5xl lg:text-6xl">{post.title}</h1>
+          </div>
+          {summaryText(post) ? (
+            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--detail-accent)]">Editor&apos;s brief</p>
+              <p className="mt-3 line-clamp-5 text-sm leading-7 opacity-65">{summaryText(post)}</p>
+            </div>
+          ) : null}
+        </header>
 
-      {images[0] ? (
-        <div className="mt-9 overflow-hidden rounded-[1.6rem] bg-[var(--slot4-media-bg)]">
-          <img src={images[0]} alt="" className="max-h-[560px] w-full object-cover" />
-        </div>
-      ) : null}
+        {images[0] ? (
+          <figure className="mt-8 overflow-hidden rounded-[1.6rem] bg-[var(--slot4-media-bg)]">
+            <img src={images[0]} alt={post.title} className="max-h-[620px] w-full object-cover" />
+          </figure>
+        ) : null}
 
-      <div className="mt-10 grid gap-9 lg:grid-cols-[minmax(0,1fr)_310px] lg:items-start">
-        <article className="min-w-0 rounded-[1.6rem] border border-[var(--editable-border)] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)] sm:p-8">
+        <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_310px] lg:items-start">
+          <article className="min-w-0 rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:p-8">
           <BodyContent post={post} />
           <ArticleShareBar post={post} />
+          <div className="mx-auto max-w-3xl py-8">
+            <Ads slot="article-bottom" showLabel className="mx-auto w-full" />
+          </div>
           <EditableComments slug={post.slug} comments={comments} />
-        </article>
-        <RelatedPanel task="article" post={post} related={related} compact />
+          </article>
+          <RelatedPanel task="article" post={post} related={related} compact />
+        </div>
       </div>
     </section>
   )
