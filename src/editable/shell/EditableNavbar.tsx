@@ -14,7 +14,7 @@ export function EditableNavbar() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const { session, logout } = useEditableLocalAuthSession()
-  const navVars = { '--editable-nav-bg': 'rgba(255,255,255,0.9)', '--editable-nav-text': preset.colors.foreground, '--editable-nav-active': preset.colors.foreground, '--editable-nav-active-text': preset.colors.background, '--editable-cta-bg': preset.colors.foreground, '--editable-cta-text': preset.colors.background, '--editable-search-bg': preset.colors.surface, '--editable-border': `${preset.colors.muted}33` } as CSSProperties
+  const navVars = { '--editable-nav-bg': 'rgba(10,0,0,0.95)', '--editable-nav-text': '#ffffff', '--editable-nav-active': '#FF0000', '--editable-nav-active-text': '#ffffff', '--editable-cta-bg': '#950101', '--editable-cta-text': '#ffffff', '--editable-search-bg': '#1a0000', '--editable-border': 'rgba(255,0,0,0.2)' } as CSSProperties
   const navItems = useMemo(
     () => [{ label: 'Articles', href: '/article' }, { label: 'Search', href: '/search' }, { label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }],
     []
@@ -24,9 +24,7 @@ export function EditableNavbar() {
     <header style={navVars} className="sticky top-0 z-50 border-b border-[var(--editable-border)] bg-[var(--editable-nav-bg)] text-[var(--editable-nav-text)] backdrop-blur-2xl">
       <nav className="mx-auto flex min-h-[72px] w-full max-w-[var(--editable-container)] items-center gap-4 px-4 sm:px-6">
         <Link href="/" className="group flex shrink-0 items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl border border-[var(--editable-border)] bg-white shadow-sm transition-transform group-hover:-rotate-2">
-            <img src="/favicon.png?v=20260413" alt={slot4BrandConfig.siteName} className="h-8 w-8 object-contain" />
-          </span>
+          <img src="/favicon.png?v=20260413" alt={slot4BrandConfig.siteName} className="h-20 w-20 object-contain" />
           <span className="hidden min-w-0 sm:block">
             <span className="block max-w-[180px] truncate text-base font-black tracking-[-0.03em]">{slot4BrandConfig.siteName}</span>
             <span className="block max-w-[180px] truncate text-[10px] font-bold uppercase tracking-[0.18em] opacity-55">{globalContent.nav?.tagline || slot4BrandConfig.tagline}</span>
@@ -44,7 +42,7 @@ export function EditableNavbar() {
           {navItems.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
             return (
-              <Link key={item.href} href={item.href} className={`rounded-full px-4 py-2 text-sm font-black transition ${active ? 'bg-[var(--editable-nav-active)] text-[var(--editable-nav-active-text)]' : 'hover:bg-black/5'}`}>
+              <Link key={item.href} href={item.href} className={`rounded-full px-4 py-2 text-sm font-black transition ${active ? 'bg-[var(--editable-nav-active)] text-[var(--editable-nav-active-text)]' : 'hover:bg-white/10'}`}>
                 {item.label}
               </Link>
             )
@@ -55,16 +53,16 @@ export function EditableNavbar() {
           {session ? (
             <>
               <Link href="/create" className="hidden items-center gap-2 rounded-full bg-[var(--editable-cta-bg)] px-4 py-2.5 text-sm font-black text-[var(--editable-cta-text)] shadow-sm sm:inline-flex"><PlusCircle className="h-4 w-4" /> Create</Link>
-              <span className="hidden max-w-[150px] truncate rounded-full border border-[var(--editable-border)] bg-white px-4 py-2 text-sm font-black sm:inline-flex">{session.name}</span>
-              <button type="button" onClick={logout} className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-black hover:bg-black/5 sm:inline-flex">Logout</button>
+              <span className="hidden max-w-[150px] truncate rounded-full border border-[var(--editable-border)] bg-[#1a0000] px-4 py-2 text-sm font-black sm:inline-flex">{session.name}</span>
+              <button type="button" onClick={logout} className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-black hover:bg-white/10 sm:inline-flex">Logout</button>
             </>
           ) : (
             <>
-              <Link href="/login" className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-black hover:bg-black/5 sm:inline-flex"><LogIn className="h-4 w-4" /> Login</Link>
+              <Link href="/login" className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-black hover:bg-white/10 sm:inline-flex"><LogIn className="h-4 w-4" /> Login</Link>
               <Link href="/signup" className="hidden items-center gap-2 rounded-full bg-[var(--editable-cta-bg)] px-4 py-2.5 text-sm font-black text-[var(--editable-cta-text)] shadow-sm sm:inline-flex"><UserPlus className="h-4 w-4" /> Sign up</Link>
             </>
           )}
-          <button type="button" onClick={() => setOpen((value) => !value)} className="rounded-full border border-[var(--editable-border)] bg-white p-2 lg:hidden" aria-label="Toggle menu">
+          <button type="button" onClick={() => setOpen((value) => !value)} className="rounded-full border border-[var(--editable-border)] bg-[#1a0000] p-2 lg:hidden" aria-label="Toggle menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -78,11 +76,11 @@ export function EditableNavbar() {
           </form>
           <div className="grid gap-2">
             {[{ label: 'Home', href: '/' }, ...navItems, ...(session ? [{ label: `Signed in as ${session.name}`, href: '/create' }, { label: 'Create', href: '/create' }] : [{ label: 'Login', href: '/login' }, { label: 'Sign up', href: '/signup' }])].map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-2xl border border-[var(--editable-border)] bg-white px-4 py-3 text-sm font-black">
+              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-2xl border border-[var(--editable-border)] bg-[#1a0000] px-4 py-3 text-sm font-black">
                 {item.label}
               </Link>
             ))}
-            {session ? <button type="button" onClick={() => { logout(); setOpen(false) }} className="rounded-2xl border border-[var(--editable-border)] bg-white px-4 py-3 text-left text-sm font-black">Logout</button> : null}
+            {session ? <button type="button" onClick={() => { logout(); setOpen(false) }} className="rounded-2xl border border-[var(--editable-border)] bg-[#1a0000] px-4 py-3 text-left text-sm font-black">Logout</button> : null}
           </div>
         </div>
       ) : null}

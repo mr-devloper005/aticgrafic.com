@@ -13,9 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function SignupPage() {
   return (
     <EditableSiteShell>
-      <main className="bg-[var(--editable-page-text,#0d0d0d)] text-white">
+      <main className="bg-black text-white">
         <section className="mx-auto grid min-h-[calc(100vh-12rem)] max-w-[var(--editable-container)] items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[420px_1fr]">
-          <div className="rounded-[1.6rem] border border-white/10 bg-white p-6 text-[#0d0d0d] shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-8">
+          <div className="rounded-[1.6rem] border border-white/10 bg-[#1a0000] p-6 text-white shadow-[0_24px_70px_rgba(0,0,0,0.22)] sm:p-8">
             <h1 className="text-3xl font-black tracking-[-0.05em]">{pagesContent.auth.signup.formTitle}</h1>
             <EditableLocalSignupForm />
             <p className="mt-5 text-sm opacity-70">Already have an account? <Link href="/login" className="font-black underline-offset-4 hover:underline">{pagesContent.auth.signup.loginCta}</Link></p>
