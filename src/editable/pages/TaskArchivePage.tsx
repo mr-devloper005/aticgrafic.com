@@ -20,6 +20,30 @@ export const taskMetadata = (task: TaskKey, path: string) =>
     description: taskPageMetadata[task]?.description,
   })
 
+const HTML_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  ndash: '–', mdash: '—', bull: '•', hellip: '…', prime: '′', Prime: '″',
+  lsquo: '\u2018', rsquo: '\u2019', ldquo: '\u201c', rdquo: '\u201d', sbquo: '\u201a', bdquo: '\u201e',
+  trade: '™', copy: '©', reg: '®', deg: '°', micro: 'µ', middot: '·',
+  laquo: '«', raquo: '»', frac14: '¼', frac12: '½', frac34: '¾',
+  times: '×', divide: '÷', plusmn: '±', para: '¶', sect: '§', euro: '€',
+  pound: '£', yen: '¥', cent: '¢', larr: '←', rarr: '→', uarr: '↑', darr: '↓',
+}
+const _fromCodePoint = (code: number, fallback: string) => { try { return code > 0 && code < 0x10ffff ? String.fromCodePoint(code) : fallback } catch { return fallback } }
+const _decodeEntities = (value: string) => value
+  .replace(/&#x([0-9a-f]+);/gi, (m, hex) => _fromCodePoint(parseInt(hex, 16), m))
+  .replace(/&#(\d+);/g, (m, dec) => _fromCodePoint(Number(dec), m))
+  .replace(/&([a-z]+\d*);/gi, (m, name) => HTML_ENTITIES[name] ?? m)
+const _removeTags = (value: string) => value
+  .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+  .replace(/<!--[\s\S]*?-->/g, ' ')
+  .replace(/<\/?(p|div|br|hr|li|ul|ol|tr|td|th|h[1-6]|blockquote|section|article|header|footer|nav|main|aside|figure|figcaption|details|summary|dt|dd)\b[^>]*>/gi, ' ')
+  .replace(/<[^>]*>/g, ' ')
+const toPlainText = (value: unknown) => {
+  if (typeof value !== 'string' || !value) return ''
+  return _removeTags(_decodeEntities(_removeTags(value))).replace(/\s+/g, ' ').trim()
+}
+
 const getContent = (post: SitePost) => post.content && typeof post.content === 'object' ? post.content as Record<string, unknown> : {}
 const asText = (value: unknown) => typeof value === 'string' ? value.trim() : ''
 const isUrl = (value: string) => value.startsWith('/') || /^https?:\/\//i.test(value)
@@ -36,7 +60,7 @@ const getImages = (post: SitePost) => {
 const placeholder = '/placeholder.svg?height=900&width=1200'
 const getImage = (post: SitePost) => getImages(post)[0] || placeholder
 const getCategory = (post: SitePost, fallback: string) => asText(getContent(post).category) || post.tags?.[0] || fallback
-const getSummary = (post: SitePost) => post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || asText(getContent(post).body)
+const getSummary = (post: SitePost) => toPlainText(post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || asText(getContent(post).body))
 const getField = (post: SitePost, keys: string[]) => {
   const content = getContent(post)
   for (const key of keys) {
@@ -96,20 +120,20 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
     <EditableSiteShell>
       <main style={archiveVars} className="bg-[var(--archive-bg)] text-[var(--archive-text)]">
         <section className="mx-auto grid max-w-[var(--editable-container)] gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_310px] lg:py-14">
-          <div className="rounded-[1.6rem] border border-[var(--editable-border)] bg-[var(--archive-surface)] p-6 shadow-[0_18px_55px_rgba(15,23,42,0.07)] sm:p-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] bg-white/70 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-[var(--archive-accent)]"><Icon className="h-4 w-4" /> {label}</div>
+          <div className="rounded-[1.6rem] border border-[var(--editable-border)] bg-[var(--archive-surface)] p-6 shadow-[0_18px_55px_rgba(0,0,0,0.25)] sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] bg-[#1a0000]/70 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-[var(--archive-accent)]"><Icon className="h-4 w-4" /> {label}</div>
             <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1] tracking-[-0.06em] sm:text-5xl">{task === 'article' ? 'Browse the article archive' : voice?.headline || `Browse ${label}`}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 opacity-70">{voice?.description || SITE_CONFIG.description}</p>
-            <div className="mt-6 rounded-[1.25rem] border border-[var(--editable-border)] bg-white/55 p-4 text-sm font-bold leading-7 opacity-75">{deck.promise}</div>
+            <div className="mt-6 rounded-[1.25rem] border border-[var(--editable-border)] bg-[#1a0000]/55 p-4 text-sm font-bold leading-7 opacity-75">{deck.promise}</div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={basePath} className="rounded-full bg-[var(--archive-text)] px-5 py-3 text-sm font-black text-[var(--archive-bg)]">Browse all</Link>
               <Link href="/search" className="rounded-full border border-[var(--editable-border)] px-5 py-3 text-sm font-black">Search posts</Link>
             </div>
           </div>
 
-          <form action={basePath} className="self-end rounded-[1.35rem] border border-[var(--editable-border)] bg-white/80 p-5 shadow-sm backdrop-blur">
+          <form action={basePath} className="self-end rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000]/80 p-5 shadow-sm backdrop-blur">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] opacity-55"><Filter className="h-4 w-4" /> Filter</div>
-            <select name="category" defaultValue={category} className="mt-4 h-12 w-full rounded-2xl border border-[var(--editable-border)] bg-white px-4 text-sm font-bold outline-none">
+            <select name="category" defaultValue={category} className="mt-4 h-12 w-full rounded-2xl border border-[var(--editable-border)] bg-[#1a0000] px-4 text-sm font-bold outline-none">
               <option value="all">All categories</option>
               {CATEGORY_OPTIONS.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             </select>
@@ -124,7 +148,7 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
               {posts.map((post, index) => <ArchivePostCard key={post.id || post.slug} post={post} task={task} basePath={basePath} index={index} />)}
             </div>
           ) : (
-            <div className="rounded-[2rem] border border-dashed border-[var(--editable-border)] bg-white/60 p-10 text-center">
+            <div className="rounded-[2rem] border border-dashed border-[var(--editable-border)] bg-[#1a0000]/60 p-10 text-center">
               <Search className="mx-auto h-8 w-8 opacity-45" />
               <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">No posts found</h2>
               <p className="mt-2 text-sm opacity-65">Try another category or refresh this page after publishing new content.</p>
@@ -132,9 +156,9 @@ export function TaskArchiveView({ task, posts, pagination, category, basePath }:
           )}
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            {pagination.hasPrevPage ? <Link href={pageHref(basePath, category, page - 1)} className="rounded-full border border-[var(--editable-border)] bg-white px-5 py-3 text-sm font-black">Previous</Link> : null}
+            {pagination.hasPrevPage ? <Link href={pageHref(basePath, category, page - 1)} className="rounded-full border border-[var(--editable-border)] bg-[#1a0000] px-5 py-3 text-sm font-black">Previous</Link> : null}
             <span className="rounded-full bg-[var(--archive-text)] px-5 py-3 text-sm font-black text-[var(--archive-bg)]">Page {page} of {pagination.totalPages || 1}</span>
-            {pagination.hasNextPage ? <Link href={pageHref(basePath, category, page + 1)} className="rounded-full border border-[var(--editable-border)] bg-white px-5 py-3 text-sm font-black">Next</Link> : null}
+            {pagination.hasNextPage ? <Link href={pageHref(basePath, category, page + 1)} className="rounded-full border border-[var(--editable-border)] bg-[#1a0000] px-5 py-3 text-sm font-black">Next</Link> : null}
           </div>
         </section>
       </main>
@@ -157,10 +181,10 @@ function ArticleArchiveCard({ post, href, index }: { post: SitePost; href: strin
   const image = getImage(post)
   const category = getCategory(post, 'Article')
   return (
-    <Link href={href} className="group grid overflow-hidden rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:grid-cols-[220px_minmax(0,1fr)]">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[1.1rem] bg-black/5 sm:aspect-auto sm:min-h-[178px]">
+    <Link href={href} className="group grid overflow-hidden rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:grid-cols-[220px_minmax(0,1fr)]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[1.1rem] bg-white/5 sm:aspect-auto sm:min-h-[178px]">
         <img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-        <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">{category}</span>
+        <span className="absolute left-4 top-4 rounded-full bg-[#1a0000] px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">{category}</span>
       </div>
       <div className="p-3 sm:p-5">
         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--archive-accent)]">Story {String(index + 1).padStart(2, '0')}</p>
@@ -178,7 +202,7 @@ function ListingArchiveCard({ post, href }: { post: SitePost; href: string }) {
   const phone = getField(post, ['phone', 'telephone', 'mobile'])
   const website = getField(post, ['website', 'url'])
   return (
-    <Link href={href} className="group grid gap-5 rounded-[2rem] border border-[var(--editable-border)] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:grid-cols-[120px_1fr]">
+    <Link href={href} className="group grid gap-5 rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:grid-cols-[120px_1fr]">
       <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.5rem] bg-[var(--archive-bg)] ring-1 ring-[var(--editable-border)]">
         {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <BriefcaseBusiness className="h-10 w-10 opacity-45" />}
       </div>
@@ -204,10 +228,10 @@ function ClassifiedArchiveCard({ post, href }: { post: SitePost; href: string })
   const location = getField(post, ['location', 'address', 'city'])
   const condition = getField(post, ['condition', 'type', 'availability'])
   return (
-    <Link href={href} className="group overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <Link href={href} className="group overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="grid min-h-64 sm:grid-cols-[0.72fr_1fr]">
         <div className="relative bg-[var(--archive-text)] p-5 text-[var(--archive-bg)]">
-          <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">Classified</span>
+          <span className="rounded-full bg-[#950101]/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">Classified</span>
           <h2 className="mt-10 text-3xl font-black leading-[1] tracking-[-0.07em]">{price || 'Open offer'}</h2>
           <p className="mt-4 text-sm font-bold opacity-75">{location || condition || 'Details inside'}</p>
           {image ? <img src={image} alt="" className="absolute bottom-4 right-4 h-20 w-20 rounded-2xl object-cover opacity-80" /> : null}
@@ -225,7 +249,7 @@ function ClassifiedArchiveCard({ post, href }: { post: SitePost; href: string })
 function ImageArchiveCard({ post, href, index }: { post: SitePost; href: string; index: number }) {
   const image = getImage(post)
   return (
-    <Link href={href} className="group mb-5 block break-inside-avoid overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <Link href={href} className="group mb-5 block break-inside-avoid overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className={index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/3]'}>
         <img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
@@ -240,7 +264,7 @@ function ImageArchiveCard({ post, href, index }: { post: SitePost; href: string;
 function BookmarkArchiveCard({ post, href, index }: { post: SitePost; href: string; index: number }) {
   const website = getField(post, ['website', 'url', 'link'])
   return (
-    <Link href={href} className="group block rounded-[1.7rem] border border-[var(--editable-border)] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:bg-[var(--archive-text)] hover:text-[var(--archive-bg)]">
+    <Link href={href} className="group block rounded-[1.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 shadow-sm transition hover:-translate-y-1 hover:bg-[var(--archive-text)] hover:text-[var(--archive-bg)]">
       <div className="flex items-center justify-between gap-3">
         <span className="rounded-full border border-current/20 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">Save {String(index + 1).padStart(2, '0')}</span>
         <Bookmark className="h-5 w-5" />
@@ -255,7 +279,7 @@ function BookmarkArchiveCard({ post, href, index }: { post: SitePost; href: stri
 function PdfArchiveCard({ post, href }: { post: SitePost; href: string }) {
   const category = getCategory(post, 'PDF')
   return (
-    <Link href={href} className="group rounded-[2rem] border border-[var(--editable-border)] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <Link href={href} className="group rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-start justify-between gap-4">
         <div className="rounded-[1.4rem] bg-[var(--archive-text)] p-5 text-[var(--archive-bg)]"><FileText className="h-8 w-8" /></div>
         <span className="rounded-full bg-[var(--archive-bg)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]">{category}</span>
@@ -271,7 +295,7 @@ function ProfileArchiveCard({ post, href }: { post: SitePost; href: string }) {
   const avatar = getImages(post)[0]
   const role = getField(post, ['role', 'designation', 'company', 'location'])
   return (
-    <Link href={href} className="group rounded-[2rem] border border-[var(--editable-border)] bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <Link href={href} className="group rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[var(--archive-bg)] ring-1 ring-[var(--editable-border)]">
         {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-10 w-10 opacity-45" />}
       </div>
