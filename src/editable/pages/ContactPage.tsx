@@ -15,7 +15,7 @@ export default function ContactPage() {
 
   return (
     <EditableSiteShell>
-      <main className="mx-auto max-w-[var(--editable-container)] px-4 py-12 text-[var(--editable-page-text,#0d0d0d)] sm:px-6">
+      <main className="mx-auto max-w-[var(--editable-container)] px-4 py-12 text-white sm:px-6">
         <section className="grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">{pagesContent.contact.eyebrow}</p>
@@ -23,7 +23,7 @@ export default function ContactPage() {
             <p className="mt-5 max-w-2xl text-sm leading-8 opacity-70">{pagesContent.contact.description}</p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {lanes.map((lane) => (
-                <div key={lane.title} className="rounded-[1.25rem] border border-[var(--editable-border)] bg-white p-5 shadow-sm">
+                <div key={lane.title} className="rounded-[1.25rem] border border-[var(--editable-border)] bg-[#1a0000] p-5 shadow-sm">
                   <lane.icon className="h-5 w-5" />
                   <h2 className="mt-3 text-xl font-black tracking-[-0.04em]">{lane.title}</h2>
                   <p className="mt-2 text-sm leading-7 opacity-70">{lane.body}</p>
@@ -32,7 +32,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="rounded-[1.6rem] border border-[var(--editable-border)] bg-white p-5 shadow-sm">
+          <div className="rounded-[1.6rem] border border-[var(--editable-border)] bg-[#1a0000] p-5 shadow-sm">
             <div className="mb-5 flex items-center gap-3">
               <Sparkles className="h-5 w-5" />
               <h2 className="text-2xl font-black tracking-[-0.05em]">{pagesContent.contact.formTitle}</h2>

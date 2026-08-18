@@ -94,7 +94,31 @@ const formatPlainText = (raw: string) => {
     .join('')
 }
 
-const summaryText = (post: SitePost) => post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || ''
+const HTML_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  ndash: '–', mdash: '—', bull: '•', hellip: '…', prime: '′', Prime: '″',
+  lsquo: '\u2018', rsquo: '\u2019', ldquo: '\u201c', rdquo: '\u201d', sbquo: '\u201a', bdquo: '\u201e',
+  trade: '™', copy: '©', reg: '®', deg: '°', micro: 'µ', middot: '·',
+  laquo: '«', raquo: '»', frac14: '¼', frac12: '½', frac34: '¾',
+  times: '×', divide: '÷', plusmn: '±', para: '¶', sect: '§', euro: '€',
+  pound: '£', yen: '¥', cent: '¢', larr: '←', rarr: '→', uarr: '↑', darr: '↓',
+}
+const _fromCodePoint = (code: number, fallback: string) => { try { return code > 0 && code < 0x10ffff ? String.fromCodePoint(code) : fallback } catch { return fallback } }
+const _decodeEntities = (value: string) => value
+  .replace(/&#x([0-9a-f]+);/gi, (m, hex) => _fromCodePoint(parseInt(hex, 16), m))
+  .replace(/&#(\d+);/g, (m, dec) => _fromCodePoint(Number(dec), m))
+  .replace(/&([a-z]+\d*);/gi, (m, name) => HTML_ENTITIES[name] ?? m)
+const _removeTags = (value: string) => value
+  .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+  .replace(/<!--[\s\S]*?-->/g, ' ')
+  .replace(/<\/?(p|div|br|hr|li|ul|ol|tr|td|th|h[1-6]|blockquote|section|article|header|footer|nav|main|aside|figure|figcaption|details|summary|dt|dd)\b[^>]*>/gi, ' ')
+  .replace(/<[^>]*>/g, ' ')
+const toPlainText = (value: unknown) => {
+  if (typeof value !== 'string' || !value) return ''
+  return _removeTags(_decodeEntities(_removeTags(value))).replace(/\s+/g, ' ').trim()
+}
+
+const summaryText = (post: SitePost) => toPlainText(post.summary || asText(getContent(post).description) || asText(getContent(post).excerpt) || '')
 const categoryOf = (post: SitePost, fallback: string) => asText(getContent(post).category) || post.tags?.[0] || fallback
 const mapSrcFor = (post: SitePost) => {
   const address = getField(post, ['address', 'location', 'city'])
@@ -127,7 +151,7 @@ export function TaskDetailView({ task, post, related, comments = [] }: { task: T
 function BackLink({ task }: { task: TaskKey }) {
   const taskConfig = getTaskConfig(task)
   return (
-    <Link href={taskConfig?.route || '/'} className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] bg-white/70 px-4 py-2 text-sm font-black">
+    <Link href={taskConfig?.route || '/'} className="inline-flex items-center gap-2 rounded-full border border-[var(--editable-border)] bg-[#1a0000]/70 px-4 py-2 text-sm font-black">
       <ArrowLeft className="h-4 w-4" /> Back to {taskConfig?.label || 'posts'}
     </Link>
   )
@@ -144,12 +168,12 @@ function ArticleDetail({ post, related, comments }: { post: SitePost; related: S
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-[var(--slot4-accent-soft)] px-4 py-2 text-xs font-black text-[var(--detail-text)]">{categoryOf(post, 'Article')}</span>
-              <span className="rounded-full border border-[var(--editable-border)] bg-white px-4 py-2 text-xs font-black">{readableMinutes(post)}</span>
+              <span className="rounded-full border border-[var(--editable-border)] bg-[#1a0000] px-4 py-2 text-xs font-black">{readableMinutes(post)}</span>
             </div>
             <h1 className="mt-5 max-w-5xl text-4xl font-black leading-[1.02] tracking-[-0.06em] sm:text-5xl lg:text-6xl">{post.title}</h1>
           </div>
           {summaryText(post) ? (
-            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-5">
+            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] p-5">
               <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--detail-accent)]">Editor&apos;s brief</p>
               <p className="mt-3 line-clamp-5 text-sm leading-7 opacity-65">{summaryText(post)}</p>
             </div>
@@ -163,7 +187,7 @@ function ArticleDetail({ post, related, comments }: { post: SitePost; related: S
         ) : null}
 
         <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_310px] lg:items-start">
-          <article className="min-w-0 rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] sm:p-8">
+          <article className="min-w-0 rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.3)] sm:p-8">
           <BodyContent post={post} />
           <ArticleShareBar post={post} />
           <div className="mx-auto max-w-3xl py-8">
@@ -189,14 +213,14 @@ function ArticleShareBar({ post }: { post: SitePost }) {
     <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--editable-border)] pt-6">
       <div className="flex flex-wrap gap-2">
         {[categoryOf(post, 'Article'), ...(post.tags || []).slice(0, 2)].filter(Boolean).map((tag) => (
-          <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`} className="rounded-full border border-[var(--editable-border)] bg-white px-4 py-2 text-xs font-black">{tag}</Link>
+          <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`} className="rounded-full border border-[var(--editable-border)] bg-[#1a0000] px-4 py-2 text-xs font-black">{tag}</Link>
         ))}
       </div>
       <div className="flex items-center gap-2 text-sm font-black">
         <span className="opacity-60">Share:</span>
-        <Link href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-white">f</Link>
-        <Link href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-white">x</Link>
-        <Link href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(url)}`} className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-white"><Mail className="h-4 w-4" /></Link>
+        <Link href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-[#1a0000]">f</Link>
+        <Link href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-[#1a0000]">x</Link>
+        <Link href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(url)}`} className="grid h-9 w-9 place-items-center rounded-full border border-[var(--editable-border)] bg-[#1a0000]"><Mail className="h-4 w-4" /></Link>
       </div>
     </div>
   )
@@ -214,7 +238,7 @@ function ListingDetail({ post, related }: { post: SitePost; related: SitePost[] 
     <section className="mx-auto max-w-[var(--editable-container)] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <BackLink task="listing" />
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <article className="rounded-[2.8rem] border border-[var(--editable-border)] bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.09)] sm:p-9">
+        <article className="rounded-[2.8rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] sm:p-9">
           <div className="grid gap-6 sm:grid-cols-[150px_1fr]">
             <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-[2rem] bg-[var(--detail-bg)] ring-1 ring-[var(--editable-border)]">
               {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Building2 className="h-14 w-14 opacity-40" />}
@@ -263,7 +287,7 @@ function ClassifiedDetail({ post, related }: { post: SitePost; related: SitePost
           {email ? <a href={`mailto:${email}`} className="rounded-full border border-white/25 px-5 py-3 text-sm font-black">Email</a> : null}
         </div>
       </aside>
-      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.08)] sm:p-9">
+      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] sm:p-9">
         <ImageStrip images={images} label="Offer images" large />
         <BodyContent post={post} />
         <ContactAction website={website} phone={phone} email={email} />
@@ -279,7 +303,7 @@ function ImageDetail({ post, related }: { post: SitePost; related: SitePost[] })
     <section className="mx-auto max-w-[var(--editable-container)] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <BackLink task="image" />
       <div className="mt-8 grid gap-8 lg:grid-cols-[0.72fr_1.28fr]">
-        <aside className="rounded-[2.5rem] border border-[var(--editable-border)] bg-white p-7 lg:sticky lg:top-24 lg:self-start">
+        <aside className="rounded-[2.5rem] border border-[var(--editable-border)] bg-[#1a0000] p-7 lg:sticky lg:top-24 lg:self-start">
           <div className="inline-flex items-center gap-2 rounded-full bg-[var(--detail-text)] px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-[var(--detail-bg)]"><Camera className="h-4 w-4" /> Image story</div>
           <h1 className="mt-6 text-4xl font-black leading-[0.98] tracking-[-0.07em] sm:text-5xl">{post.title}</h1>
           <p className="mt-5 text-base leading-8 opacity-70">{summaryText(post)}</p>
@@ -287,7 +311,7 @@ function ImageDetail({ post, related }: { post: SitePost; related: SitePost[] })
         </aside>
         <div className="columns-1 gap-5 space-y-5 md:columns-2">
           {(images.length ? images : ['/placeholder.svg?height=900&width=1200']).map((image, index) => (
-            <figure key={`${image}-${index}`} className="break-inside-avoid overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-white shadow-sm">
+            <figure key={`${image}-${index}`} className="break-inside-avoid overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] shadow-sm">
               <img src={image} alt="" className="w-full object-cover" />
               {index === 0 ? <figcaption className="p-5 text-sm font-bold opacity-65">Featured visual from this image post.</figcaption> : null}
             </figure>
@@ -303,7 +327,7 @@ function BookmarkDetail({ post, related }: { post: SitePost; related: SitePost[]
   const website = getField(post, ['website', 'url', 'link'])
   return (
     <section className="mx-auto grid max-w-[var(--editable-container)] gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 lg:py-16">
-      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-7 shadow-[0_30px_90px_rgba(15,23,42,0.08)] sm:p-10">
+      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-7 shadow-[0_30px_90px_rgba(0,0,0,0.3)] sm:p-10">
         <BackLink task="sbm" />
         <div className="mt-10 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--detail-text)] text-[var(--detail-bg)]"><Bookmark className="h-9 w-9" /></div>
         <h1 className="mt-7 text-4xl font-black leading-[0.98] tracking-[-0.07em] sm:text-6xl">{post.title}</h1>
@@ -320,7 +344,7 @@ function PdfDetail({ post, related }: { post: SitePost; related: SitePost[] }) {
   const fileUrl = getField(post, ['fileUrl', 'pdfUrl', 'documentUrl', 'url'])
   return (
     <section className="mx-auto grid max-w-[var(--editable-container)] gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 lg:py-16">
-      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.08)] sm:p-9">
+      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.3)] sm:p-9">
         <BackLink task="pdf" />
         <div className="mt-8 grid gap-6 sm:grid-cols-[120px_1fr]">
           <div className="flex h-28 w-28 items-center justify-center rounded-[1.8rem] bg-[var(--detail-text)] text-[var(--detail-bg)]"><FileText className="h-12 w-12" /></div>
@@ -332,7 +356,7 @@ function PdfDetail({ post, related }: { post: SitePost; related: SitePost[] }) {
         <BodyContent post={post} />
         {fileUrl ? (
           <div className="mt-8 overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-[var(--detail-bg)]">
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--editable-border)] bg-white p-4">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--editable-border)] bg-[#1a0000] p-4">
               <span className="text-sm font-black">Document preview</span>
               <Link href={fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[var(--detail-text)] px-4 py-2 text-xs font-black text-[var(--detail-bg)]">Download <Download className="h-4 w-4" /></Link>
             </div>
@@ -352,7 +376,7 @@ function ProfileDetail({ post, related }: { post: SitePost; related: SitePost[] 
   const email = getField(post, ['email'])
   return (
     <section className="mx-auto grid max-w-[var(--editable-container)] gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[420px_minmax(0,1fr)] lg:px-8 lg:py-16">
-      <aside className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-8 text-center shadow-[0_30px_90px_rgba(15,23,42,0.08)] lg:sticky lg:top-24 lg:self-start">
+      <aside className="rounded-[2.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-8 text-center shadow-[0_30px_90px_rgba(0,0,0,0.3)] lg:sticky lg:top-24 lg:self-start">
         <BackLink task="profile" />
         <div className="mx-auto mt-10 flex h-40 w-40 items-center justify-center overflow-hidden rounded-full bg-[var(--detail-bg)] ring-1 ring-[var(--editable-border)]">
           {images[0] ? <img src={images[0]} alt="" className="h-full w-full object-cover" /> : <UserRound className="h-16 w-16 opacity-45" />}
@@ -361,7 +385,7 @@ function ProfileDetail({ post, related }: { post: SitePost; related: SitePost[] 
         {role ? <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[var(--detail-accent)]">{role}</p> : null}
         <ContactAction website={website} email={email} />
       </aside>
-      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-white p-7 shadow-sm sm:p-10">
+      <article className="rounded-[2.7rem] border border-[var(--editable-border)] bg-[#1a0000] p-7 shadow-sm sm:p-10">
         <BodyContent post={post} />
         <ImageStrip images={images.slice(1)} label="Profile gallery" />
         <RelatedPanel task="profile" post={post} related={related} />
@@ -403,7 +427,7 @@ function ImageStrip({ images, label, large = false }: { images: string[]; label:
 
 function MapBox({ src, label }: { src: string; label: string }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] shadow-sm">
       <div className="flex items-center gap-2 p-4 text-sm font-black"><MapPin className="h-4 w-4" /> {label || 'Map location'}</div>
       <iframe src={src} title="Map" loading="lazy" className="h-80 w-full border-0" />
     </div>
@@ -413,7 +437,7 @@ function MapBox({ src, label }: { src: string; label: string }) {
 function ContactAction({ website, phone, email }: { website?: string; phone?: string; email?: string }) {
   if (!website && !phone && !email) return null
   return (
-    <div className="mt-5 rounded-[2rem] border border-[var(--editable-border)] bg-white p-5 shadow-sm">
+    <div className="mt-5 rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000] p-5 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.22em] opacity-55">Quick actions</p>
       <div className="mt-4 flex flex-wrap gap-3">
         {website ? <Link href={website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[var(--detail-text)] px-4 py-2 text-sm font-black text-[var(--detail-bg)]">Website <ExternalLink className="h-4 w-4" /></Link> : null}
@@ -433,7 +457,7 @@ function RelatedPanel({ task, related }: { task: TaskKey; post: SitePost; relate
   return (
     <aside className="min-w-0 space-y-5">
       {related.length ? (
-        <div className="rounded-[2rem] border border-[var(--editable-border)] bg-white/70 p-5 backdrop-blur">
+        <div className="rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000]/70 p-5 backdrop-blur">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-black tracking-[-0.04em]">More like this</h2>
             <Link href={taskConfig?.route || '/'} className="text-xs font-black uppercase tracking-[0.16em] opacity-55">View all</Link>
@@ -450,7 +474,7 @@ function RelatedPanel({ task, related }: { task: TaskKey; post: SitePost; relate
 function RelatedCard({ task, post }: { task: TaskKey; post: SitePost }) {
   const image = getImages(post)[0]
   return (
-    <Link href={buildPostUrl(task, post.slug)} className="group flex gap-3 rounded-2xl border border-[var(--editable-border)] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-lg">
+    <Link href={buildPostUrl(task, post.slug)} className="group flex gap-3 rounded-2xl border border-[var(--editable-border)] bg-[#1a0000] p-3 transition hover:-translate-y-0.5 hover:shadow-lg">
       {image && task !== 'sbm' ? <img src={image} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" /> : <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[var(--detail-bg)]"><FileText className="h-6 w-6 opacity-45" /></div>}
       <div className="min-w-0">
         <h3 className="line-clamp-3 text-sm font-black leading-tight tracking-[-0.03em]">{post.title}</h3>
@@ -462,11 +486,11 @@ function RelatedCard({ task, post }: { task: TaskKey; post: SitePost }) {
 
 function EditableComments({ slug, comments }: { slug: string; comments: Array<{ id: string; name: string; comment: string; createdAt: string }> }) {
   return (
-    <section className="mt-10 rounded-[2rem] border border-[var(--editable-border)] bg-white/70 p-5">
+    <section className="mt-10 rounded-[2rem] border border-[var(--editable-border)] bg-[#1a0000]/70 p-5">
       <div className="flex items-center gap-2 text-lg font-black"><MessageCircle className="h-5 w-5" /> Comments</div>
       <div className="mt-5 grid gap-3">
         {comments.slice(0, 5).map((comment) => (
-          <div key={comment.id} className="rounded-2xl border border-[var(--editable-border)] bg-white p-4">
+          <div key={comment.id} className="rounded-2xl border border-[var(--editable-border)] bg-[#1a0000] p-4">
             <p className="text-sm font-black">{comment.name}</p>
             <p className="mt-2 text-sm leading-6 opacity-70">{comment.comment}</p>
           </div>

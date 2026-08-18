@@ -26,7 +26,7 @@ function readTime(post: SitePost, fallback = '3 min read') {
 
 function SectionHeader({ title, kicker, href }: { title: string; kicker: string; href: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[var(--editable-border)] bg-white px-5 py-4">
+    <div className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[var(--editable-border)] bg-[#1a0000] px-5 py-4">
       <div className="flex min-w-0 items-center gap-3">
         <Sparkle className="h-5 w-5 shrink-0 fill-current" />
         <h2 className="text-2xl font-black tracking-[-0.05em]">{title}</h2>
@@ -42,7 +42,7 @@ function SectionHeader({ title, kicker, href }: { title: string; kicker: string;
 
 function SmallStory({ post, href }: { post: SitePost; href: string }) {
   return (
-    <Link href={href} className="group grid gap-3 rounded-[1.25rem] border border-[var(--editable-border)] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[92px_1fr]">
+    <Link href={href} className="group grid gap-3 rounded-[1.25rem] border border-[var(--editable-border)] bg-[#1a0000] p-3 transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[92px_1fr]">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--slot4-media-bg)]">
         <img src={getEditablePostImage(post)} alt={post.title} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
@@ -60,8 +60,8 @@ function PosterCard({ post, href, index }: { post: SitePost; href: string; index
       <article className="relative overflow-hidden rounded-[1.35rem]">
         <div className="relative aspect-[4/3] overflow-hidden bg-[var(--slot4-media-bg)]">
           <img src={getEditablePostImage(post)} alt={post.title} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-          <span className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1 text-[10px] font-black">{getEditableCategory(post)}</span>
-          <span className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white transition group-hover:bg-black group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
+          <span className="absolute bottom-3 left-3 rounded-full bg-[#1a0000] px-3 py-1 text-[10px] font-black">{getEditableCategory(post)}</span>
+          <span className="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full border border-[rgba(255,0,0,0.2)] bg-[#1a0000] transition group-hover:bg-black group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
         </div>
         <h3 className="mt-3 line-clamp-2 text-lg font-black leading-tight tracking-[-0.04em]">{post.title}</h3>
         <p className="mt-2 flex items-center gap-2 text-[11px] font-bold opacity-55">Story {String(index + 1).padStart(2, '0')} <span>/</span> {readTime(post)}</p>
@@ -72,11 +72,11 @@ function PosterCard({ post, href, index }: { post: SitePost; href: string; index
 
 function EditorialCard({ post, href, featured = false }: { post: SitePost; href: string; featured?: boolean }) {
   return (
-    <Link href={href} className={`group block overflow-hidden rounded-[1.35rem] border border-[var(--editable-border)] bg-white transition hover:-translate-y-0.5 hover:shadow-xl ${featured ? 'md:col-span-2' : ''}`}>
+    <Link href={href} className={`group block overflow-hidden rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] transition hover:-translate-y-0.5 hover:shadow-xl ${featured ? 'md:col-span-2' : ''}`}>
       <div className={`relative overflow-hidden bg-[var(--slot4-media-bg)] ${featured ? 'aspect-[16/8]' : 'aspect-[4/3]'}`}>
         <img src={getEditablePostImage(post)} alt={post.title} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-        <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-[10px] font-black">{getEditableCategory(post)}</span>
-        <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white"><Bookmark className="h-4 w-4" /></span>
+        <span className="absolute left-4 top-4 rounded-full bg-[#1a0000] px-3 py-1 text-[10px] font-black">{getEditableCategory(post)}</span>
+        <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border border-[rgba(255,0,0,0.2)] bg-[#1a0000]"><Bookmark className="h-4 w-4" /></span>
       </div>
       <div className="p-5">
         <p className={`${dc.type.eyebrow} ${pal.accentText}`}>{readTime(post)}</p>
@@ -89,7 +89,7 @@ function EditorialCard({ post, href, featured = false }: { post: SitePost; href:
 
 function ListRow({ post, href, index }: { post: SitePost; href: string; index: number }) {
   return (
-    <Link href={href} className="group grid gap-4 rounded-[1.25rem] border border-[var(--editable-border)] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[150px_1fr]">
+    <Link href={href} className="group grid gap-4 rounded-[1.25rem] border border-[var(--editable-border)] bg-[#1a0000] p-3 transition hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[150px_1fr]">
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[var(--slot4-media-bg)]">
         <img src={getEditablePostImage(post)} alt={post.title} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
       </div>
@@ -115,7 +115,7 @@ export function EditableHomeHero({ primaryTask, primaryRoute, posts }: HomeSecti
             <img src={getEditablePostImage(hero)} alt={hero.title} className="absolute inset-0 h-full w-full object-cover opacity-72 transition duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.72),rgba(0,0,0,0.12)),linear-gradient(180deg,transparent,rgba(0,0,0,0.55))]" />
             <div className="relative z-10 flex min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
-              <span className="w-fit rounded-full bg-white px-3 py-1 text-[10px] font-black text-black">{getEditableCategory(hero)}</span>
+              <span className="w-fit rounded-full bg-[#1a0000] px-3 py-1 text-[10px] font-black text-white">{getEditableCategory(hero)}</span>
               <h1 className="mt-5 text-4xl font-black leading-[1.02] tracking-[-0.06em] sm:text-5xl">{hero.title || pagesContent.home.hero.title.join(' ')}</h1>
               <p className="mt-4 line-clamp-3 text-sm leading-7 text-white/80 sm:text-base">{getEditableExcerpt(hero, 180) || pagesContent.home.hero.description}</p>
               <div className="mt-6 flex items-center gap-4 text-xs font-bold text-white/80">
@@ -126,7 +126,7 @@ export function EditableHomeHero({ primaryTask, primaryRoute, posts }: HomeSecti
             </div>
           </Link>
           <div className="grid gap-4">
-            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-5">
+            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] p-5">
               <p className={`${dc.type.eyebrow} ${pal.accentText}`}>{pagesContent.home.hero.badge}</p>
               <h2 className="mt-3 text-2xl font-black tracking-[-0.05em]">{pagesContent.home.hero.title.join(' ')}</h2>
               <form action="/search" className="mt-5 flex rounded-full border border-[var(--editable-border)] bg-[var(--slot4-gray)] p-1.5">
@@ -187,7 +187,7 @@ export function EditableTimeCollections({ primaryTask, primaryRoute, posts, time
             {latest.slice(0, 5).map((post, index) => <ListRow key={post.id || post.slug} post={post} href={postHref(primaryTask, post, primaryRoute)} index={index} />)}
           </div>
           <aside className="space-y-5">
-            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-white p-6">
+            <div className="rounded-[1.35rem] border border-[var(--editable-border)] bg-[#1a0000] p-6">
               <p className={`${dc.type.eyebrow} ${pal.accentText}`}>Newsletter</p>
               <h2 className="mt-3 text-2xl font-black tracking-[-0.05em]">Get the week's best articles.</h2>
               <p className="mt-3 text-sm leading-6 opacity-65">A short editorial digest with new essays, analysis, and useful reads.</p>
@@ -206,7 +206,7 @@ export function EditableTimeCollections({ primaryTask, primaryRoute, posts, time
 
 export function EditableHomeCta() {
   return (
-    <section className="bg-white px-4 py-14 sm:px-6">
+    <section className="bg-[#1a0000] px-4 py-14 sm:px-6">
       <div className="mx-auto max-w-[var(--editable-container)] rounded-[1.6rem] border border-[var(--editable-border)] bg-[var(--slot4-gray)] p-8 text-center sm:p-12">
         <p className={`${dc.type.eyebrow} ${pal.accentText}`}>{pagesContent.home.cta.badge}</p>
         <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-[-0.05em] sm:text-4xl">{pagesContent.home.cta.title}</h2>
